@@ -111,12 +111,14 @@ export class CompareDirectoryCommand {
             action?: string;
         }
 
-        const fileItems: FileItem[] = comparison.files.map((file: DirectoryFile) => ({
-            label: `${this.directoryComparisonService.getStatusIcon(file)} ${file.relativePath}`,
-            description: this.directoryComparisonService.getStatusDescription(file),
-            detail: file.path,
-            file
-        }));
+        const fileItems: FileItem[] = comparison.files
+            .filter((file: DirectoryFile) => !file.isDirectory)
+            .map((file: DirectoryFile) => ({
+                label: `${this.directoryComparisonService.getStatusIcon(file)} ${file.relativePath}`,
+                description: this.directoryComparisonService.getStatusDescription(file),
+                detail: file.path,
+                file
+            }));
 
         if (fileItems.length === 0) {
             vscode.window.showInformationMessage('No differences found between directory and reference');
