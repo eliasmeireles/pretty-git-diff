@@ -3,16 +3,20 @@ import * as path from 'path';
 import { GitService } from '../services/GitService';
 import { DirectoryComparisonService } from '../services/DirectoryComparisonService';
 import { ReferenceSelectionService } from '../services/ReferenceSelectionService';
+import { DiffService } from '../services/DiffService';
 import { ValidationUtils } from '../utils/ValidationUtils';
+import { LanguageUtils } from '../utils';
 import { DirectoryFile } from '../types';
 
 export class CompareDirectoryCommand {
     private readonly referenceSelectionService: ReferenceSelectionService;
     private readonly directoryComparisonService: DirectoryComparisonService;
+    private readonly diffService: DiffService;
 
     constructor(private readonly gitService: GitService) {
         this.referenceSelectionService = new ReferenceSelectionService(gitService);
         this.directoryComparisonService = new DirectoryComparisonService(gitService);
+        this.diffService = new DiffService(gitService, new LanguageUtils());
     }
 
     async execute(uri?: vscode.Uri): Promise<void> {
@@ -264,18 +268,7 @@ export class CompareDirectoryCommand {
 
     private async showFileDiff(file: DirectoryFile, reference: string, gitRoot: string): Promise<void> {
         try {
-            const relativePath = path.relative(gitRoot, file.path).replace(/\\/g, '/');
-            const remoteContent = await this.gitService.getFileContentFromBranch(gitRoot, relativePath, reference);
-            
-            const remoteDoc = await vscode.workspace.openTextDocument({
-                content: remoteContent,
-                language: this.getLanguageFromExtension(file.relativePath)
-            });
-            
-            const localDoc = await vscode.workspace.openTextDocument(file.path);
-            const title = `${path.basename(file.relativePath)} (${reference} ↔ Local)`;
-            
-            await vscode.commands.executeCommand('vscode.diff', remoteDoc.uri, localDoc.uri, title);
+            await this.diffService.openCurrentFileDiff(file.path, reference);
         } catch (error: any) {
             vscode.window.showErrorMessage(`Failed to show diff: ${error.message}`);
         }
@@ -291,22 +284,4 @@ export class CompareDirectoryCommand {
         await vscode.window.showTextDocument(doc);
     }
 
-    private getLanguageFromExtension(fileName: string): string {
-        const ext = path.extname(fileName).toLowerCase();
-        const languageMap: { [key: string]: string } = {
-            '.js': 'javascript',
-            '.ts': 'typescript',
-            '.jsx': 'javascriptreact',
-            '.tsx': 'typescriptreact',
-            '.py': 'python',
-            '.java': 'java',
-            '.go': 'go',
-            '.rs': 'rust',
-            '.json': 'json',
-            '.md': 'markdown',
-            '.txt': 'plaintext'
-        };
-        
-        return languageMap[ext] || 'plaintext';
-    }
 }
