@@ -20,15 +20,15 @@
     "commands": [
       {
         "command": "branchDiff.compareWithBranch",
-        "title": "Pretty Git Diff: File diff"
+        "title": "Pretty Git Diff: File"
       },
       {
         "command": "branchDiff.compareDirectory",
-        "title": "Pretty Git Diff: Directory Diff"
+        "title": "Pretty Git Diff: Directory"
       },
       {
         "command": "branchDiff.applyBranchChanges",
-        "title": "Pretty Git Diff: Apply diff"
+        "title": "Pretty Git Diff: Apply"
       }
     ],
     "menus": {
