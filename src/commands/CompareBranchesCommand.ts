@@ -39,18 +39,68 @@ export class CompareBranchesCommand {
                 return;
             }
 
+            // Create options with "Retrieve All" as first option if multiple files
+            const options = [];
+            
+            if (diffFiles.length > 1) {
+                options.push({
+                    label: '📥 Retrieve All Files',
+                    description: `Download all ${diffFiles.length} changed files`,
+                    path: '__RETRIEVE_ALL__',
+                    status: 'RETRIEVE_ALL'
+                });
+            }
+            
+            // Add individual files
+            options.push(...diffFiles);
+
             // Show file selection
-            const selectedFile = await vscode.window.showQuickPick(diffFiles, {
+            const selectedOption = await vscode.window.showQuickPick(options, {
                 placeHolder: `Select file to compare between ${this.getDisplayName(ref1)} and ${this.getDisplayName(ref2)}`
             });
 
-            if (selectedFile) {
-                await this.diffService.openBranchDiff(gitRoot, selectedFile.path, ref1.name, ref2.name);
+            if (selectedOption) {
+                if (selectedOption.path === '__RETRIEVE_ALL__') {
+                    await this.retrieveAllFiles(gitRoot, diffFiles, ref1.name, ref2.name);
+                } else {
+                    await this.diffService.openBranchDiff(gitRoot, selectedOption.path, ref1.name, ref2.name);
+                }
             }
 
         } catch (error: any) {
             vscode.window.showErrorMessage(`Failed to compare references: ${error.message}`);
         }
+    }
+
+    private async retrieveAllFiles(gitRoot: string, diffFiles: any[], ref1Name: string, ref2Name: string): Promise<void> {
+        const progress = await vscode.window.withProgress({
+            location: vscode.ProgressLocation.Notification,
+            title: `Retrieving ${diffFiles.length} files...`,
+            cancellable: false
+        }, async (progress) => {
+            let completed = 0;
+            
+            for (const file of diffFiles) {
+                progress.report({
+                    message: `Processing ${file.path}...`,
+                    increment: (100 / diffFiles.length)
+                });
+                
+                try {
+                    await this.diffService.openBranchDiff(gitRoot, file.path, ref1Name, ref2Name);
+                    completed++;
+                    
+                    // Small delay to prevent overwhelming VS Code
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                } catch (error: any) {
+                    vscode.window.showErrorMessage(`Failed to retrieve ${file.path}: ${error.message}`);
+                }
+            }
+            
+            return completed;
+        });
+        
+        vscode.window.showInformationMessage(`Successfully retrieved ${progress} of ${diffFiles.length} files`);
     }
 
     private getDisplayName(ref: any): string {

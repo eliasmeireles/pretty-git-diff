@@ -9,6 +9,7 @@
   },
   "categories": ["Other"],
   "keywords": ["Git", "Diff", "Compare", "Branch", "Commit"],
+  "icon": "accets/icon.png",
   "activationEvents": [
     "onCommand:branchDiff.compareWithBranch",
     "onCommand:branchDiff.compareBranches",

@@ -118,6 +118,11 @@ export class GitService {
         return stdout
             .split('\n')
             .filter(line => line.trim())
+            .filter(line => {
+                // Only include files that have actual changes (exclude identical files)
+                const [status] = line.split('\t');
+                return status && status !== 'U'; // Exclude unmerged files and ensure status exists
+            })
             .map(line => {
                 const [status, filePath] = line.split('\t');
                 const statusLabel = this.getStatusLabel(status);
