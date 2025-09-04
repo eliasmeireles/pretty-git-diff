@@ -36,32 +36,35 @@ export class GitService {
                     const isRemote = cleanLine.startsWith('remotes/');
                     
                     if (isRemote) {
-                        // For remote branches, use the full reference
+                        // For remote branches, extract remote and branch name
                         const fullRef = cleanLine; // e.g., "remotes/origin/branch-name"
-                        const displayName = cleanLine.replace(/^remotes\/origin\//, ''); // e.g., "branch-name"
+                        const remotePart = cleanLine.replace(/^remotes\//, ''); // "origin/branch-name"
+                        const displayName = remotePart; // Show as "origin/branch-name"
                         
                         if (!seenBranches.has(displayName)) {
                             seenBranches.add(displayName);
                             branches.push({
                                 name: fullRef, // Use full reference for git commands
                                 type: 'branch',
-                                displayName: `🌐 ${displayName}`,
+                                displayName: displayName,
                                 description: 'Remote branch',
                                 label: `🌐 ${displayName}`,
                                 detail: 'Remote branch'
                             });
                         }
                     } else {
-                        // For local branches, use as-is
+                        // For local branches, prefix with "local/"
                         const branchName = cleanLine;
-                        if (!seenBranches.has(branchName)) {
-                            seenBranches.add(branchName);
+                        const displayName = `local/${branchName}`;
+                        
+                        if (!seenBranches.has(displayName)) {
+                            seenBranches.add(displayName);
                             branches.push({
                                 name: branchName,
                                 type: 'branch',
-                                displayName: `📁 ${branchName}`,
+                                displayName: displayName,
                                 description: 'Local branch',
-                                label: `📁 ${branchName}`,
+                                label: `📁 ${displayName}`,
                                 detail: 'Local branch'
                             });
                         }
@@ -89,7 +92,8 @@ export class GitService {
                     message: message.length > 50 ? message.substring(0, 50) + '...' : message,
                     author,
                     date,
-                    displayName: `${shortHash} - ${message.length > 40 ? message.substring(0, 40) + '...' : message} (${author})`
+                    displayName: `${shortHash} - ${message.length > 40 ? 
+                        message.substring(0, 40) + '...' : message} (${author})`
                 };
             });
     }
