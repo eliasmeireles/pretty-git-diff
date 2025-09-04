@@ -55,6 +55,23 @@
           "when": "editorTextFocus",
           "group": "navigation"
         }
+      ],
+      "explorer/context": [
+        {
+          "command": "branchDiff.compareWithBranch",
+          "when": "resourceScheme == file && !explorerResourceIsFolder",
+          "group": "7_modification"
+        },
+        {
+          "command": "branchDiff.compareDirectory",
+          "when": "resourceScheme == file && explorerResourceIsFolder",
+          "group": "7_modification"
+        },
+        {
+          "command": "branchDiff.applyBranchChanges",
+          "when": "resourceScheme == file && !explorerResourceIsFolder",
+          "group": "7_modification"
+        }
       ]
     }
   },
