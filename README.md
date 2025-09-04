@@ -2,19 +2,17 @@
 
 A VS Code extension that provides powerful Git comparison tools with an intuitive visual interface similar to JetBrains IDEs.
 
-![Pretty Git Diff Icon](accets/icon.png)
-
 ## ✨ Features
 
 ### 📁 File Comparison
 Compare any file with versions from different branches or commits with side-by-side diff view.
 
-![File Diff Demo](accets/file-diff.gif)
+![File Diff Demo](https://github.com/eliasmeireles/pretty-git-dff/blob/main/accets/file-diff.gif?raw=true)
 
 ### 📂 Directory Comparison
 Compare entire directories between branches with file status indicators and bulk operations.
 
-![Directory Diff Demo](accets/dir-diff.gif)
+![Directory Diff Demo](https://github.com/eliasmeireles/pretty-git-dff/blob/main/accets/dir-diff.gif?raw=true)
 
 ### 🔄 Apply Changes
 Apply changes from any branch or commit directly to your current file.
