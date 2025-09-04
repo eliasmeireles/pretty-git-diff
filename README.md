@@ -1,6 +1,6 @@
 # Pretty Git Diff
 
-A VS Code extension that provides powerful Git comparison tools with an intuitive visual interface similar to JetBrains IDEs.
+A VS Code extension that provides powerful Git comparison tools with an intuitive visual interface.
 
 ## ✨ Features
 
