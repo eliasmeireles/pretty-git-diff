@@ -12,7 +12,6 @@
   "icon": "accets/icon.png",
   "activationEvents": [
     "onCommand:branchDiff.compareWithBranch",
-    "onCommand:branchDiff.compareBranches",
     "onCommand:branchDiff.compareDirectory",
     "onCommand:branchDiff.applyBranchChanges"
   ],
@@ -24,12 +23,8 @@
         "title": "Pretty Git Diff: File diff"
       },
       {
-        "command": "branchDiff.compareBranches",
-        "title": "Pretty Git Diff: Branch diff"
-      },
-      {
         "command": "branchDiff.compareDirectory",
-        "title": "Pretty Git Diff: Directory comparison"
+        "title": "Pretty Git Diff: Directory Diff"
       },
       {
         "command": "branchDiff.applyBranchChanges",
@@ -38,9 +33,6 @@
     ],
     "menus": {
       "commandPalette": [
-        {
-          "command": "branchDiff.compareBranches"
-        },
         {
           "command": "branchDiff.compareDirectory"
         }
