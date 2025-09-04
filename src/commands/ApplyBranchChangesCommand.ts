@@ -2,7 +2,6 @@ import * as vscode from 'vscode';
 import * as path from 'path';
 import { GitService } from '../services/GitService';
 import { ReferenceSelectionService } from '../services/ReferenceSelectionService';
-import { ValidationUtils } from '../utils/ValidationUtils';
 
 export class ApplyBranchChangesCommand {
     private readonly referenceSelectionService: ReferenceSelectionService;
@@ -22,12 +21,28 @@ export class ApplyBranchChangesCommand {
                 document = await vscode.workspace.openTextDocument(uri);
             } else {
                 // Called from editor context or command palette
-                const editor = ValidationUtils.validateActiveEditor();
+                const editor = vscode.window.activeTextEditor;
+                if (!editor) {
+                    vscode.window.showWarningMessage(
+                        'Pretty Git Diff: Apply - Please open a file in the editor or ' +
+                        'right-click on a file in the explorer.'
+                    );
+                    return;
+                }
                 document = editor.document;
                 filePath = document.uri.fsPath;
             }
             
-            const gitRoot = await this.gitService.getGitRoot(path.dirname(filePath));
+            // Check if project has git initialized
+            let gitRoot: string;
+            try {
+                gitRoot = await this.gitService.getGitRoot(path.dirname(filePath));
+            } catch (gitError: any) {
+                vscode.window.showErrorMessage(
+                    'Pretty Git Diff: This project is not a Git repository. Please initialize Git first.'
+                );
+                return;
+            }
             
             // Ask user to choose between branches or commits
             const comparisonType = await this.referenceSelectionService.selectComparisonType();
@@ -45,7 +60,7 @@ export class ApplyBranchChangesCommand {
             await this.applyChangesFromReference(document, filePath, reference.name);
             
         } catch (error: any) {
-            vscode.window.showErrorMessage(error.message);
+            vscode.window.showErrorMessage(`Pretty Git Diff: ${error.message}`);
         }
     }
 

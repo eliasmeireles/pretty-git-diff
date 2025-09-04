@@ -4,7 +4,6 @@ import { GitService } from '../services/GitService';
 import { DirectoryComparisonService } from '../services/DirectoryComparisonService';
 import { ReferenceSelectionService } from '../services/ReferenceSelectionService';
 import { DiffService } from '../services/DiffService';
-import { ValidationUtils } from '../utils/ValidationUtils';
 import { LanguageUtils } from '../utils';
 import { DirectoryFile } from '../types';
 
@@ -28,13 +27,29 @@ export class CompareDirectoryCommand {
                 selectedFolder = uri.fsPath;
             } else {
                 // Called from command palette
-                const workspaceFolder = ValidationUtils.validateWorkspaceFolder();
+                const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
+                if (!workspaceFolder) {
+                    vscode.window.showWarningMessage(
+                        'Pretty Git Diff: Directory - Please open a workspace or ' +
+                        'right-click on a folder in the explorer.'
+                    );
+                    return;
+                }
                 const folder = await this.selectDirectory(workspaceFolder.uri.fsPath);
                 if (!folder) return;
                 selectedFolder = folder;
             }
 
-            const gitRoot = await this.gitService.getGitRoot(selectedFolder);
+            // Check if project has git initialized
+            let gitRoot: string;
+            try {
+                gitRoot = await this.gitService.getGitRoot(selectedFolder);
+            } catch (gitError: any) {
+                vscode.window.showErrorMessage(
+                    'Pretty Git Diff: This project is not a Git repository. Please initialize Git first.'
+                );
+                return;
+            }
             
             // Ask user to choose between branches or commits
             const comparisonType = await this.referenceSelectionService.selectComparisonType();
@@ -65,7 +80,7 @@ export class CompareDirectoryCommand {
             await this.showComparisonResults(progress, gitRoot);
 
         } catch (error: any) {
-            vscode.window.showErrorMessage(`Failed to compare directory: ${error.message}`);
+            vscode.window.showErrorMessage(`Pretty Git Diff: ${error.message}`);
         }
     }
 
