@@ -14,11 +14,18 @@ export class CompareWithBranchCommand {
         this.referenceSelectionService = new ReferenceSelectionService(this.gitService);
     }
 
-    async execute(): Promise<void> {
+    async execute(uri?: vscode.Uri): Promise<void> {
         try {
-            const editor = ValidationUtils.validateActiveEditor();
-            const document = editor.document;
-            const filePath = document.uri.fsPath;
+            let filePath: string;
+            
+            if (uri) {
+                // Called from explorer context menu
+                filePath = uri.fsPath;
+            } else {
+                // Called from editor context or command palette
+                const editor = ValidationUtils.validateActiveEditor();
+                filePath = editor.document.uri.fsPath;
+            }
             
             const gitRoot = await this.gitService.getGitRoot(path.dirname(filePath));
             

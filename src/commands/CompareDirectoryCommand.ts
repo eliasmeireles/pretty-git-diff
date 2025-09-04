@@ -15,13 +15,20 @@ export class CompareDirectoryCommand {
         this.directoryComparisonService = new DirectoryComparisonService(gitService);
     }
 
-    async execute(): Promise<void> {
+    async execute(uri?: vscode.Uri): Promise<void> {
         try {
-            const workspaceFolder = ValidationUtils.validateWorkspaceFolder();
+            let selectedFolder: string;
             
-            // Select directory to compare
-            const selectedFolder = await this.selectDirectory(workspaceFolder.uri.fsPath);
-            if (!selectedFolder) return;
+            if (uri) {
+                // Called from explorer context menu on a directory
+                selectedFolder = uri.fsPath;
+            } else {
+                // Called from command palette
+                const workspaceFolder = ValidationUtils.validateWorkspaceFolder();
+                const folder = await this.selectDirectory(workspaceFolder.uri.fsPath);
+                if (!folder) return;
+                selectedFolder = folder;
+            }
 
             const gitRoot = await this.gitService.getGitRoot(selectedFolder);
             

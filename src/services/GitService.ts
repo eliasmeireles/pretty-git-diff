@@ -26,6 +26,7 @@ export class GitService {
     async getBranchesWithRemotes(gitRoot: string): Promise<GitReference[]> {
         const { stdout } = await execAsync('git branch -a', { cwd: gitRoot });
         const branches: GitReference[] = [];
+        const seenBranches = new Set<string>();
         
         stdout.split('\n')
             .filter(line => line.trim())
@@ -33,28 +34,42 @@ export class GitService {
                 const cleanLine = line.replace(/^\*?\s*/, ''); // Remove * and spaces
                 if (!cleanLine.includes('->') && cleanLine) {
                     const isRemote = cleanLine.startsWith('remotes/');
-                    const branchName = isRemote 
-                        ? cleanLine.replace(/^remotes\/origin\//, '')
-                        : cleanLine;
-                    const displayName = isRemote 
-                        ? `🌐 ${branchName}` 
-                        : `📁 ${branchName}`;
                     
-                    // Avoid duplicates
-                    if (!branches.find(b => b.name === branchName)) {
-                        branches.push({
-                            name: branchName,
-                            type: 'branch',
-                            displayName,
-                            description: isRemote ? 'Remote branch' : 'Local branch',
-                            label: displayName,
-                            detail: isRemote ? 'Remote branch' : 'Local branch'
-                        });
+                    if (isRemote) {
+                        // For remote branches, use the full reference
+                        const fullRef = cleanLine; // e.g., "remotes/origin/branch-name"
+                        const displayName = cleanLine.replace(/^remotes\/origin\//, ''); // e.g., "branch-name"
+                        
+                        if (!seenBranches.has(displayName)) {
+                            seenBranches.add(displayName);
+                            branches.push({
+                                name: fullRef, // Use full reference for git commands
+                                type: 'branch',
+                                displayName: `🌐 ${displayName}`,
+                                description: 'Remote branch',
+                                label: `🌐 ${displayName}`,
+                                detail: 'Remote branch'
+                            });
+                        }
+                    } else {
+                        // For local branches, use as-is
+                        const branchName = cleanLine;
+                        if (!seenBranches.has(branchName)) {
+                            seenBranches.add(branchName);
+                            branches.push({
+                                name: branchName,
+                                type: 'branch',
+                                displayName: `📁 ${branchName}`,
+                                description: 'Local branch',
+                                label: `📁 ${branchName}`,
+                                detail: 'Local branch'
+                            });
+                        }
                     }
                 }
             });
 
-        return branches.sort((a, b) => a.name.localeCompare(b.name));
+        return branches.sort((a, b) => a.displayName.localeCompare(b.displayName));
     }
 
     async getRecentCommits(gitRoot: string, limit: number = 20): Promise<CommitInfo[]> {
@@ -116,7 +131,22 @@ export class GitService {
 
     async getFileContentFromBranch(gitRoot: string, filePath: string, branch: string): Promise<string> {
         try {
-            const { stdout } = await execAsync(`git show ${branch}:${filePath}`, { cwd: gitRoot });
+            // Try different branch reference formats
+            let gitRef = branch;
+            
+            // If it's a remote branch reference, try with origin/ prefix
+            if (!branch.includes('/') && !branch.startsWith('origin/')) {
+                try {
+                    // First try as-is
+                    const { stdout } = await execAsync(`git show ${branch}:${filePath}`, { cwd: gitRoot });
+                    return stdout;
+                } catch {
+                    // If that fails, try with origin/ prefix
+                    gitRef = `origin/${branch}`;
+                }
+            }
+            
+            const { stdout } = await execAsync(`git show ${gitRef}:${filePath}`, { cwd: gitRoot });
             return stdout;
         } catch (error: any) {
             return `// File not found in branch '${branch}'\n// ${error.message}`;

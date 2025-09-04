@@ -11,11 +11,21 @@ export class ApplyBranchChangesCommand {
         this.referenceSelectionService = new ReferenceSelectionService(gitService);
     }
 
-    async execute(): Promise<void> {
+    async execute(uri?: vscode.Uri): Promise<void> {
         try {
-            const editor = ValidationUtils.validateActiveEditor();
-            const document = editor.document;
-            const filePath = document.uri.fsPath;
+            let filePath: string;
+            let document: vscode.TextDocument;
+            
+            if (uri) {
+                // Called from explorer context menu
+                filePath = uri.fsPath;
+                document = await vscode.workspace.openTextDocument(uri);
+            } else {
+                // Called from editor context or command palette
+                const editor = ValidationUtils.validateActiveEditor();
+                document = editor.document;
+                filePath = document.uri.fsPath;
+            }
             
             const gitRoot = await this.gitService.getGitRoot(path.dirname(filePath));
             

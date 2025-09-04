@@ -47,10 +47,10 @@ export class DiffService {
                 language: this.languageUtils.getLanguageFromExtension(path.basename(filePath))
             });
             
-            const currentDoc = await vscode.workspace.openTextDocument(filePath);
+            const currentFileUri = vscode.Uri.file(filePath);
             const title = `${path.basename(filePath)} (${branch} ↔ Working)`;
             
-            await vscode.commands.executeCommand('vscode.diff', branchDoc.uri, currentDoc.uri, title);
+            await vscode.commands.executeCommand('vscode.diff', branchDoc.uri, currentFileUri, title);
         } catch (error: any) {
             throw new Error(`Failed to compare with branch: ${error.message}`);
         }

@@ -24,7 +24,7 @@ export function activate(context: vscode.ExtensionContext) {
     const commands = [
         vscode.commands.registerCommand(
             'branchDiff.compareWithBranch', 
-            () => compareWithBranchCommand.execute()
+            (uri?: vscode.Uri) => compareWithBranchCommand.execute(uri)
         ),
         vscode.commands.registerCommand(
             'branchDiff.compareBranches', 
@@ -32,11 +32,11 @@ export function activate(context: vscode.ExtensionContext) {
         ),
         vscode.commands.registerCommand(
             'branchDiff.compareDirectory', 
-            () => compareDirectoryCommand.execute()
+            (uri?: vscode.Uri) => compareDirectoryCommand.execute(uri)
         ),
         vscode.commands.registerCommand(
             'branchDiff.applyBranchChanges', 
-            () => applyBranchChangesCommand.execute()
+            (uri?: vscode.Uri) => applyBranchChangesCommand.execute(uri)
         )
     ];
 
