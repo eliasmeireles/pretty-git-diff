@@ -1,76 +1,100 @@
 # Pretty Git Diff
 
-A VS Code extension that allows comparing Git branches and commits similar to JetBrains tools.
+A VS Code extension that provides powerful Git comparison tools with an intuitive visual interface similar to JetBrains IDEs.
 
-## Features
+![Pretty Git Diff Icon](accets/icon.png)
 
-### 🆚 Compare Branches and Commits
+## ✨ Features
 
-- Compare any two branches or commits
-- Visual selection with icons for easy identification
-- View list of changed files with status indicators
-- Side-by-side diff view for any file
+### 📁 File Comparison
+Compare any file with versions from different branches or commits with side-by-side diff view.
 
-### 📁 Compare Current File
-
-- Compare current file with version from another branch or commit
-- Quick access via right-click context menu
-- Smart reference selection
-
-### 🔄 Apply Changes
-
-- Apply changes from any branch or commit to current file
-- Complete file replacement with selected reference
-- Works with local branches, remote branches, and specific commits
+![File Diff Demo](accets/file-diff.gif)
 
 ### 📂 Directory Comparison
+Compare entire directories between branches with file status indicators and bulk operations.
 
-- Compare entire directories between references
-- Visual file listing with status indicators
+![Directory Diff Demo](accets/dir-diff.gif)
+
+### 🔄 Apply Changes
+Apply changes from any branch or commit directly to your current file.
+
+### Key Benefits
+- **Smart branch detection**: Shows both local and remote branches with clear prefixes
+- **Bulk operations**: "Get All" option for downloading multiple files at once
+- **Intuitive UI**: Clean interface with helpful status icons and descriptions
 - Retrieve missing files from remote references
 - Support for nested directory structures
 
 ## How to Use
 
-### Compare Two References
+### 📁 Compare Current File
 
+**Method 1: Right-click in Editor**
+1. Right-click anywhere in the open file
+2. Select `Pretty Git Diff: File`
+3. Choose reference type (Branches or Commits)
+4. Select branch/commit from the list
+5. View side-by-side comparison with read-only left panel
+
+**Method 2: Explorer Context Menu**
+1. Right-click on any file in the Explorer
+2. Select `Pretty Git Diff: File`
+3. Follow steps 3-5 above
+
+### 📂 Compare Directory
+
+**Method 1: Command Palette**
 1. Open Command Palette (`Cmd+Shift+P` / `Ctrl+Shift+P`)
-2. Type `Compare Branches...`
-3. Choose: Branches or Commits
-4. Select first reference
-5. Select second reference
-6. Pick file to view diff
+2. Type `Pretty Git Diff: Directory`
+3. Choose workspace root or select specific folder
+4. Choose reference type (Branches or Commits)
+5. Select branch/commit from the list
+6. Browse files with status indicators:
+   - 🆕 New files (available in reference)
+   - 📝 Modified files
+   - 📄 Local only files
+7. Use "📥 Get All Files" to download multiple files at once
 
-### Compare Current File
+**Method 2: Explorer Context Menu**
+1. Right-click on any folder in the Explorer
+2. Select `Pretty Git Diff: Directory`
+3. Follow steps 4-7 above
 
-1. Right-click in editor
-2. Select `Compare File With Branch...`
-3. Choose reference type and select from list
-4. View side-by-side comparison
+### 🔄 Apply Changes to File
 
-### Apply Changes to File
+1. Right-click in editor or on file in Explorer
+2. Select `Pretty Git Diff: Apply`
+3. Choose reference type (Branches or Commits)
+4. Select branch/commit to apply changes from
+5. File content will be completely replaced
 
-1. Right-click in editor
-2. Select `Apply Branch Changes to File`
-3. Choose reference to apply changes from
-4. File content will be replaced
+### 🌐 Branch Selection
 
-### Compare Directory
-
-1. Open Command Palette (`Cmd+Shift+P` / `Ctrl+Shift+P`)
-2. Type `Pretty Git Diff: Directory comparison`
-3. Select directory (workspace root or specific folder)
-4. Choose reference type and select from list
-5. Browse files with status indicators
-6. Retrieve missing files or view diffs
-
-## Installation
-
-1. Download the `.vsix` file
-2. In VS Code: Extensions → Install from VSIX
-3. Select the downloaded file
+The extension shows branches with clear prefixes:
+- `📁 local/main` - Local branches
+- `🌐 origin/feature-branch` - Remote branches
+- `📝 abc1234 - commit message (author)` - Recent commits
 
 ## Requirements
 
 - Git repository
-- At least 2 branches for branch comparison
+- VS Code 1.50.0 or higher
+
+## Troubleshooting
+
+### No files/directories selected
+If you see warnings about no files selected, make sure to:
+- Open a file in the editor before using File commands
+- Open a workspace before using Directory commands from Command Palette
+- Right-click on files/folders in Explorer for context menu access
+
+### Not a Git repository
+If you see "This project is not a Git repository" error:
+- Initialize Git in your project: `git init`
+- Clone from a Git repository
+- Open a folder that contains a `.git` directory
+
+## Support
+
+For issues and feature requests, please check the extension's marketplace page or repository.
