@@ -3,7 +3,7 @@
   "displayName": "Pretty Git Diff",
   "description": "Compare Git branches and commits with visual diff interface similar to JetBrains tools",
   "version": "0.0.1",
-  "publisher": "eliasmferreira",
+  "publisher": "eliasmeireles",
   "engines": {
     "vscode": "^1.50.0"
   },
