@@ -108,29 +108,99 @@ export class CompareDirectoryCommand {
             description: string;
             detail: string;
             file: DirectoryFile;
+            action?: string;
         }
 
-        const items: FileItem[] = comparison.files.map((file: DirectoryFile) => ({
+        const fileItems: FileItem[] = comparison.files.map((file: DirectoryFile) => ({
             label: `${this.directoryComparisonService.getStatusIcon(file)} ${file.relativePath}`,
             description: this.directoryComparisonService.getStatusDescription(file),
             detail: file.path,
             file
         }));
 
-        if (items.length === 0) {
+        if (fileItems.length === 0) {
             vscode.window.showInformationMessage('No differences found between directory and reference');
             return;
         }
 
+        // Count files that can be retrieved (exist in remote but not local or are different)
+        const retrievableFiles = fileItems.filter(item => 
+            !item.file.exists.local || 
+            (item.file.exists.local && item.file.exists.remote && item.file.status === 'modified')
+        );
+
+        const items: FileItem[] = [];
+
+        // Add "Get All" option if there are multiple retrievable files
+        if (retrievableFiles.length > 1) {
+            items.push({
+                label: '📥 Get All Files',
+                description: `Download all ${retrievableFiles.length} files`,
+                detail: 'Retrieve all changed/new files from the selected branch',
+                file: {} as DirectoryFile,
+                action: 'GET_ALL'
+            });
+        }
+
+        // Add individual files
+        items.push(...fileItems);
+
         const selected = await vscode.window.showQuickPick(items, {
-            placeHolder: `Directory comparison results (${items.length} items)`,
+            placeHolder: `Directory comparison results (${fileItems.length} items)`,
             matchOnDescription: true,
             matchOnDetail: true
         });
 
         if (!selected) return;
 
+        // Handle "Get All" action
+        if (selected.action === 'GET_ALL') {
+            await this.handleGetAllFiles(retrievableFiles, comparison, gitRoot);
+            return;
+        }
+
         await this.handleFileAction(selected.file, comparison, gitRoot);
+    }
+
+    private async handleGetAllFiles(
+        retrievableFiles: Array<{ file: DirectoryFile }>,
+        comparison: any,
+        gitRoot: string
+    ): Promise<void> {
+        const progress = await vscode.window.withProgress({
+            location: vscode.ProgressLocation.Notification,
+            title: `Retrieving ${retrievableFiles.length} files...`,
+            cancellable: false
+        }, async (progress) => {
+            let completed = 0;
+            
+            for (const item of retrievableFiles) {
+                const file = item.file;
+                progress.report({
+                    message: `Retrieving ${file.relativePath}...`,
+                    increment: (100 / retrievableFiles.length)
+                });
+
+                try {
+                    if (!file.exists.local || file.status === 'modified') {
+                        const relativePath = path.relative(gitRoot, file.path).replace(/\\/g, '/');
+                        await this.directoryComparisonService.retrieveRemoteFile(
+                            gitRoot, 
+                            comparison.reference, 
+                            relativePath, 
+                            file.path
+                        );
+                        completed++;
+                    }
+                } catch (error: any) {
+                    vscode.window.showWarningMessage(`Failed to retrieve ${file.relativePath}: ${error.message}`);
+                }
+            }
+
+            return completed;
+        });
+
+        vscode.window.showInformationMessage(`Successfully retrieved ${progress} of ${retrievableFiles.length} files`);
     }
 
     private async handleFileAction(
