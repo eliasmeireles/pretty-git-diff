@@ -158,7 +158,7 @@ export class GitService {
             const { stdout } = await execAsync(`git show ${gitRef}:${filePath}`, { cwd: gitRoot });
             return stdout;
         } catch (error: any) {
-            return `// File not found in branch '${branch}'\n// ${error.message}`;
+            return '';
         }
     }
 
