@@ -2,7 +2,7 @@
   "name": "pretty-git-diff",
   "displayName": "Pretty Git Diff",
   "description": "Compare Git branches and commits with visual diff interface similar",
-  "homepage": "https://github.com/eliasmeireles/pretty-git-diff.git",
+  "homepage": "https://github.com/eliasmeireles",
   "readme": "README.md",
   "version": "0.0.4",
   "publisher": "eliasmeireles",
