@@ -1,4 +1,4 @@
-# Pretty Git Diff
+# [Pretty Git Diff](https://github.com/eliasmeireles/pretty-git-diff)
 
 A VS Code extension that provides powerful Git comparison tools with an intuitive visual interface.
 
@@ -7,12 +7,12 @@ A VS Code extension that provides powerful Git comparison tools with an intuitiv
 ### 📁 File Comparison
 Compare any file with versions from different branches or commits with side-by-side diff view.
 
-![File Diff Demo](https://github.com/eliasmeireles/pretty-git-dff/blob/main/accets/file-diff.gif?raw=true)
+![File Diff Demo](https://github.com/eliasmeireles/pretty-git-diff/blob/main/accets/file-diff.gif?raw=true)
 
 ### 📂 Directory Comparison
 Compare entire directories between branches with file status indicators and bulk operations.
 
-![Directory Diff Demo](https://github.com/eliasmeireles/pretty-git-dff/blob/main/accets/dir-diff.gif?raw=true)
+![Directory Diff Demo](https://github.com/eliasmeireles/pretty-git-diff/blob/main/accets/dir-diff.gif?raw=true)
 
 ### 🔄 Apply Changes
 Apply changes from any branch or commit directly to your current file.
