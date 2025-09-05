@@ -27,12 +27,12 @@ export class ReferenceSelectionService {
     }
 
     async selectReference(
-        gitRoot: string, 
-        type: ComparisonType, 
+        gitRoot: string,
+        type: ComparisonType,
         prompt: string
     ): Promise<GitReference | undefined> {
         const references = await this.getFilteredReferences(gitRoot, type);
-        
+
         if (references.length === 0) {
             vscode.window.showErrorMessage(`No ${type}s found in repository`);
             return undefined;
@@ -46,15 +46,15 @@ export class ReferenceSelectionService {
     }
 
     async selectTwoReferences(
-        gitRoot: string, 
+        gitRoot: string,
         type: ComparisonType
     ): Promise<{ ref1: GitReference; ref2: GitReference } | undefined> {
         const ref1 = await this.selectReference(
-            gitRoot, 
-            type, 
+            gitRoot,
+            type,
             `Select first ${type}`
         );
-        
+
         if (!ref1) return undefined;
 
         const references = await this.getFilteredReferences(gitRoot, type);
@@ -77,7 +77,7 @@ export class ReferenceSelectionService {
     }
 
     private async getFilteredReferences(
-        gitRoot: string, 
+        gitRoot: string,
         type: ComparisonType
     ): Promise<GitReference[]> {
         if (type === ComparisonType.BRANCH) {

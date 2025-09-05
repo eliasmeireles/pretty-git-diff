@@ -3,6 +3,7 @@ import { GitService, DiffService } from './services';
 import { LanguageUtils } from './utils';
 import { 
     CompareWithBranchCommand, 
+    CompareWithCommitCommand,
     ApplyBranchChangesCommand,
     CompareDirectoryCommand
 } from './commands';
@@ -15,6 +16,7 @@ export function activate(context: vscode.ExtensionContext) {
 
     // Initialize commands
     const compareWithBranchCommand = new CompareWithBranchCommand(diffService);
+    const compareWithCommitCommand = new CompareWithCommitCommand(diffService);
     const applyBranchChangesCommand = new ApplyBranchChangesCommand(gitService);
     const compareDirectoryCommand = new CompareDirectoryCommand(gitService);
 
@@ -23,6 +25,10 @@ export function activate(context: vscode.ExtensionContext) {
         vscode.commands.registerCommand(
             'branchDiff.compareWithBranch', 
             (uri?: vscode.Uri) => compareWithBranchCommand.execute(uri)
+        ),
+        vscode.commands.registerCommand(
+            'branchDiff.compareWithCommit', 
+            (uri?: vscode.Uri) => compareWithCommitCommand.execute(uri)
         ),
         vscode.commands.registerCommand(
             'branchDiff.compareDirectory', 

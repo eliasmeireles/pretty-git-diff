@@ -1,63 +1,52 @@
 import * as vscode from 'vscode';
-import * as path from 'path';
 import { DiffService } from '../services/DiffService';
-import { GitService } from '../services/GitService';
-import { ReferenceSelectionService } from '../services/ReferenceSelectionService';
+import { VscodeGitService } from '../services/VscodeGitService';
 
 export class CompareWithBranchCommand {
-    private readonly gitService: GitService;
-    private readonly referenceSelectionService: ReferenceSelectionService;
+    private readonly vscodeGitService: VscodeGitService;
 
     constructor(private readonly diffService: DiffService) {
-        this.gitService = new GitService();
-        this.referenceSelectionService = new ReferenceSelectionService(this.gitService);
+        this.vscodeGitService = new VscodeGitService();
     }
 
     async execute(uri?: vscode.Uri): Promise<void> {
         try {
-            let filePath: string;
-            
-            if (uri) {
-                // Called from explorer context menu
-                filePath = uri.fsPath;
-            } else {
-                // Called from editor context or command palette
-                const editor = vscode.window.activeTextEditor;
-                if (!editor) {
-                    vscode.window.showWarningMessage(
-                        'Pretty Git Diff: File - Please open a file in the editor or ' +
-                        'right-click on a file in the explorer.'
-                    );
-                    return;
-                }
-                filePath = editor.document.uri.fsPath;
-            }
-            
-            // Check if project has git initialized
-            let gitRoot: string;
-            try {
-                gitRoot = await this.gitService.getGitRoot(path.dirname(filePath));
-            } catch (gitError: any) {
-                vscode.window.showErrorMessage(
-                    'Pretty Git Diff: This project is not a Git repository. Please initialize Git first.'
-                );
+            uri ??= vscode.window.activeTextEditor?.document.uri;
+            if (!uri) {
+                vscode.window.showErrorMessage("No file selected");
                 return;
             }
-            
-            // Ask user to choose between branches or commits
-            const comparisonType = await this.referenceSelectionService.selectComparisonType();
-            if (!comparisonType) return;
 
-            // Select reference to compare with
-            const reference = await this.referenceSelectionService.selectReference(
-                gitRoot,
-                comparisonType,
-                `Select ${comparisonType} to compare with current file`
-            );
-            
-            if (!reference) return;
-            
-            await this.diffService.openCurrentFileDiff(filePath, reference.name);
+            await this.vscodeGitService.initialize();
+
+            const localOnly = vscode.workspace
+                .getConfiguration("pretty-git-diff")
+                .get<boolean>("localOnly", false);
+
+            const branches = await this.vscodeGitService.getBranches(uri, !localOnly);
+            const quickPickItems = this.vscodeGitService.generateBranchQuickPickItems(branches, localOnly);
+
+            const selectedBranch = await vscode.window.showQuickPick(quickPickItems, {
+                placeHolder: "Select a branch to compare with",
+            });
+
+            if (!selectedBranch) {
+                vscode.window.showErrorMessage("No branch selected");
+                return;
+            }
+
+            const branch = branches.find((branch) => branch.name === selectedBranch.label);
+            if (!branch) {
+                vscode.window.showErrorMessage(`Branch not found: ${selectedBranch.label}`);
+                return;
+            }
+
+            if (branch.name === undefined) {
+                vscode.window.showErrorMessage(`Branch Name is undefined: ${selectedBranch.label}`);
+                return;
+            }
+
+            await this.diffService.openCurrentFileDiff(uri.fsPath, branch.name);
             
         } catch (error: any) {
             vscode.window.showErrorMessage(`Pretty Git Diff: ${error.message}`);

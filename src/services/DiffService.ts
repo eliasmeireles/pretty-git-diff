@@ -1,13 +1,18 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
 import { GitService } from './GitService';
+import { VscodeGitService } from './VscodeGitService';
 import { LanguageUtils } from '../utils';
 
 export class DiffService {
+    private readonly vscodeGitService: VscodeGitService;
+
     constructor(
         private readonly gitService: GitService,
         private readonly languageUtils: LanguageUtils
-    ) {}
+    ) {
+        this.vscodeGitService = new VscodeGitService();
+    }
 
     async openBranchDiff(gitRoot: string, filePath: string, branch1: string, branch2: string): Promise<void> {
         const fileName = path.basename(filePath);
@@ -37,39 +42,14 @@ export class DiffService {
 
     async openCurrentFileDiff(filePath: string, branch: string): Promise<void> {
         try {
-            const gitRoot = await this.gitService.getGitRoot(path.dirname(filePath));
-            const relativePath = path.relative(gitRoot, filePath).replace(/\\/g, '/');
+            await this.vscodeGitService.initialize();
             
-            const branchContent = await this.gitService.getFileContentFromBranch(gitRoot, relativePath, branch);
-            
-            // Create temp directory in .git/pretty-git-diff/
-            const fs = require('fs').promises;
-            const tempDir = path.join(gitRoot, '.git', 'pretty-git-diff');
-            await fs.mkdir(tempDir, { recursive: true });
-            
-            // Create safe filename from branch name
-            const safeBranchName = branch.replace(/[^a-zA-Z0-9.-]/g, '_');
-            const tempFileName = `${path.basename(filePath)}.${safeBranchName}.tmp`;
-            const tempPath = path.join(tempDir, tempFileName);
-            
-            await fs.writeFile(tempPath, branchContent, 'utf8');
-            
-            // Create URIs for diff
-            const branchUri = vscode.Uri.file(tempPath);
             const currentFileUri = vscode.Uri.file(filePath);
-            const title = `${path.basename(filePath)} (${branch} ↔ Working)`;
+            const gitUri = this.vscodeGitService.createGitUri(currentFileUri, branch);
+            const fileName = path.basename(filePath);
+            const title = `${fileName} (${branch} ↔ Working)`;
             
-            // Open diff and clean up temp file after a delay
-            await vscode.commands.executeCommand('vscode.diff', branchUri, currentFileUri, title);
-            
-            // Clean up temp file after 5 seconds
-            setTimeout(async () => {
-                try {
-                    await fs.unlink(tempPath);
-                } catch (error) {
-                    // Ignore cleanup errors
-                }
-            }, 5000);
+            await vscode.commands.executeCommand('vscode.diff', gitUri, currentFileUri, title);
             
         } catch (error: any) {
             throw new Error(`Failed to compare with branch: ${error.message}`);
