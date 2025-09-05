@@ -1,10 +1,10 @@
 {
   "name": "pretty-git-diff",
   "displayName": "Pretty Git Diff",
-  "description": "Compare Git branches and commits with visual diff interface similar",
+  "description": "Compare Git branches and commits with visual diff interface",
   "homepage": "https://github.com/eliasmeireles",
   "readme": "README.md",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "publisher": "eliasmeireles",
 
   "categories": ["Other"],
