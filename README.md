@@ -6,6 +6,7 @@ A VS Code extension that provides powerful Git comparison tools with an intuitiv
 
 ### 📁 File Comparison
 Compare any file with versions from different branches or commits with side-by-side diff view.
+The diff tab title shows how many lines were added and removed, e.g. `app.ts (main ↔ Working) · +12 −3`.
 
 ![File Diff Demo](https://github.com/eliasmeireles/pretty-git-diff/blob/main/accets/file-diff.gif?raw=true)
 
@@ -34,11 +35,12 @@ Apply changes from any branch or commit directly to your current file.
 3. Choose reference type (Branches or Commits)
 4. Select branch/commit from the list
 5. View side-by-side comparison with read-only left panel
+6. Check the tab title for the number of lines added and removed (`+12 −3`, `no changes` or `binary`)
 
 **Method 2: Explorer Context Menu**
 1. Right-click on any file in the Explorer
 2. Select `Pretty Git Diff: File`
-3. Follow steps 3-5 above
+3. Follow steps 3-6 above
 
 ### 📂 Compare Directory
 
@@ -77,7 +79,7 @@ The extension shows branches with clear prefixes:
 ## Requirements
 
 - Git repository
-- VS Code 1.50.0 or higher
+- VS Code 1.91.0 or higher
 
 ## Troubleshooting
 
