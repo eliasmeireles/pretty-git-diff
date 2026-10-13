@@ -6,9 +6,16 @@
   "readme": "README.md",
   "version": "0.0.6",
   "publisher": "eliasmeireles",
-
-  "categories": ["Other"],
-  "keywords": ["Git", "Diff", "Compare", "Branch", "Commit"],
+  "categories": [
+    "Other"
+  ],
+  "keywords": [
+    "Git",
+    "Diff",
+    "Compare",
+    "Branch",
+    "Commit"
+  ],
   "icon": "accets/icon.png",
   "activationEvents": [
     "onCommand:branchDiff.compareWithBranch",
@@ -85,9 +92,9 @@
     "url": "https://github.com/eliasmeireles/pretty-git-diff.git"
   },
   "devDependencies": {
-    "typescript": "^4.0.3",
-    "vscode": "^1.1.37",
-    "@types/node": "^12.11.7",
-    "vsce": "^2.10.0"
+    "@types/node": "^20.19.43",
+    "@types/vscode": "~1.91.0",
+    "@vscode/vsce": "^4.0.0",
+    "typescript": "^5.9.3"
   }
 }
