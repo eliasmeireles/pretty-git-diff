@@ -3,6 +3,9 @@
   "displayName": "Pretty Git Diff",
   "description": "Compare Git branches and commits with visual diff interface",
   "homepage": "https://github.com/eliasmeireles",
+  "sponsor": {
+    "url": "https://github.com/sponsors/eliasmeireles"
+  },
   "readme": "README.md",
   "version": "0.0.6",
   "publisher": "eliasmeireles",
