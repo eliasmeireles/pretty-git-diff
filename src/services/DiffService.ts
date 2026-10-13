@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import * as path from 'path';
 import { GitService } from './GitService';
 import { VscodeGitService } from './VscodeGitService';
+import { LineStatsService } from './LineStatsService';
 import { LanguageUtils } from '../utils';
 
 export class DiffService {
@@ -9,7 +10,8 @@ export class DiffService {
 
     constructor(
         private readonly gitService: GitService,
-        private readonly languageUtils: LanguageUtils
+        private readonly languageUtils: LanguageUtils,
+        private readonly lineStatsService: LineStatsService = new LineStatsService()
     ) {
         this.vscodeGitService = new VscodeGitService();
     }
@@ -47,12 +49,26 @@ export class DiffService {
             const currentFileUri = vscode.Uri.file(filePath);
             const gitUri = this.vscodeGitService.createGitUri(currentFileUri, branch);
             const fileName = path.basename(filePath);
-            const title = `${fileName} (${branch} ↔ Working)`;
+            const stats = await this.describeLineChanges(filePath, branch);
+            const title = `${fileName} (${branch} ↔ Working)${stats}`;
             
             await vscode.commands.executeCommand('vscode.diff', gitUri, currentFileUri, title);
             
         } catch (error: any) {
             throw new Error(`Failed to compare with branch: ${error.message}`);
+        }
+    }
+
+    /**
+     * Returns a title suffix such as ` · +12 −3`, or an empty string when the
+     * stats cannot be computed, so the diff view still opens.
+     */
+    private async describeLineChanges(filePath: string, ref: string): Promise<string> {
+        try {
+            const stats = await this.lineStatsService.getFileStats(filePath, ref);
+            return ` · ${LineStatsService.format(stats)}`;
+        } catch {
+            return '';
         }
     }
 

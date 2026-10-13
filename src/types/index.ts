@@ -58,3 +58,9 @@ export interface DirectoryComparison {
     reference: string;
     files: DirectoryFile[];
 }
+
+export interface LineChangeStats {
+    added: number;
+    removed: number;
+    binary: boolean;
+}

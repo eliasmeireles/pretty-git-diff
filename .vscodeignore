@@ -1,0 +1,11 @@
+.github/**
+.vscode/**
+.idea/**
+src/**
+out/**/*.map
+accets/*.gif
+node_modules/**
+*.vsix
+Makefile
+tsconfig.json
+.gitignore
